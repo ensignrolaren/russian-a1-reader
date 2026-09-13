@@ -1,0 +1,795 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Рассказы</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%238c2f27'/%3E%3Ctext x='32' y='47' text-anchor='middle' font-family='Georgia, serif' font-size='44' fill='%23f0ece4'%3E%D0%A0%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bad+Script&family=PT+Sans&family=Caveat:wght@400..700&family=Marck+Script&family=Pacifico&display=swap">
+<style>
+:root {
+	--paper: #e5e8e3;
+	--panel: #eef0ec;
+	--ink: #1b2620;
+	--muted: #6d7a72;
+	--print: #4a554e;
+	--rule: #c9d0ca;
+	--accent: #8c2f27;
+}
+body.night {
+	--paper: #171d1a;
+	--panel: #222a26;
+	--ink: #e3e8e3;
+	--muted: #8d9a92;
+	--print: #9fada4;
+	--rule: #2c352f;
+	--accent: #d98b7f;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+	margin: 0;
+	background: var(--paper);
+	color: var(--ink);
+	font-family: Georgia, "Times New Roman", serif;
+	font-size: 17px;
+	display: grid;
+	grid-template-columns: 16rem 1fr;
+	min-height: 100vh;
+}
+#toc {
+	position: sticky;
+	top: 0;
+	align-self: start;
+	max-height: 100vh;
+	overflow-y: auto;
+	padding: 2rem 1.2rem 3rem;
+	border-right: 1px solid var(--rule);
+	background: var(--panel);
+}
+#toc h2 {
+	margin: 0 0 1.2rem;
+	font-size: 0.8rem;
+	font-weight: 400;
+	font-style: italic;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--muted);
+}
+#toc ol {
+	margin: 0 0 1.6rem;
+	padding: 0;
+	list-style: none;
+}
+#toc button {
+	display: block;
+	width: 100%;
+	margin: 0;
+	padding: 0.35rem 0.5rem;
+	border: 0;
+	border-radius: 3px;
+	background: none;
+	font: inherit;
+	font-size: 0.98rem;
+	text-align: left;
+	color: var(--ink);
+	cursor: pointer;
+}
+#toc button:hover { background: var(--paper); }
+#toc button[aria-current="true"] {
+	background: var(--accent);
+	color: var(--panel);
+}
+#toc button small {
+	display: block;
+	font-size: 0.78rem;
+	font-style: italic;
+	color: var(--muted);
+}
+#toc button[aria-current="true"] small { color: inherit; }
+#tools {
+	padding-top: 1.2rem;
+	border-top: 1px solid var(--rule);
+	display: grid;
+	gap: 0.7rem;
+}
+main {
+	padding: 7vh 6vw 14vh;
+	max-width: 44rem;
+}
+h1 {
+	margin: 0 0 0.1em;
+	font-weight: 400;
+	line-height: 1.45;
+}
+.sub {
+	margin: 0 0 3rem;
+	font-size: 1.05rem;
+	font-style: italic;
+	color: var(--muted);
+}
+#lines {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	max-width: 32rem;
+}
+#lines li + li { margin-top: 1.7rem; }
+.ru {
+	display: block;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: none;
+	font: inherit;
+	text-align: left;
+	color: inherit;
+	cursor: pointer;
+	transition: color 0.12s ease;
+}
+.cur {
+	display: block;
+	line-height: 1.95;
+}
+.prn {
+	display: none;
+	margin-top: 0.1rem;
+	font-family: "PT Sans", Verdana, sans-serif;
+	font-size: 1.05rem;
+	line-height: 1.4;
+	color: var(--print);
+}
+.en {
+	display: none;
+	margin: 0.4rem 0 0 1.4rem;
+	padding-left: 0.9rem;
+	border-left: 2px solid var(--rule);
+	font-size: 1rem;
+	line-height: 1.55;
+	color: var(--muted);
+}
+li[data-stage="1"] .prn, li[data-stage="2"] .prn { display: block; }
+li[data-stage="2"] .en { display: block; }
+li[data-stage="2"] .cur { color: var(--accent); }
+.ru:hover .cur { color: var(--accent); }
+nav {
+	max-width: 32rem;
+	margin: 3.5rem 0 0;
+	padding-top: 1.5rem;
+	border-top: 1px solid var(--rule);
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 1.6rem;
+}
+button.act {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: none;
+	font: inherit;
+	font-size: 1rem;
+	font-style: italic;
+	color: var(--accent);
+	text-decoration: underline;
+	text-underline-offset: 4px;
+	cursor: pointer;
+}
+select {
+	width: 100%;
+	padding: 0.3rem 0.4rem;
+	border: 1px solid var(--rule);
+	border-radius: 3px;
+	background: var(--paper);
+	font: inherit;
+	font-size: 0.92rem;
+	color: var(--ink);
+}
+#night {
+	position: fixed;
+	top: 1.1rem;
+	right: 1.1rem;
+	width: 2.2rem;
+	height: 2.2rem;
+	padding: 0;
+	border: 1px solid var(--rule);
+	border-radius: 50%;
+	background: var(--panel);
+	font-size: 1rem;
+	line-height: 1;
+	color: var(--ink);
+	cursor: pointer;
+}
+:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 3px;
+}
+@media (max-width: 44rem) {
+	body { grid-template-columns: 1fr; }
+	#toc {
+		position: static;
+		max-height: none;
+		border-right: 0;
+		border-bottom: 1px solid var(--rule);
+	}
+	main { padding: 4vh 6vw 12vh; }
+}
+</style>
+</head>
+<body>
+<aside id="toc">
+	<h2>Рассказы</h2>
+	<ol id="list"></ol>
+	<div id="tools">
+		<select id="face"></select>
+		<button class="act" type="button" id="random">Случайный рассказ</button>
+	</div>
+</aside>
+<main>
+	<h1 id="title"></h1>
+	<p class="sub" id="sub"></p>
+	<ol id="lines"></ol>
+	<nav><button class="act" type="button" id="all"></button></nav>
+</main>
+<button id="night" type="button" title="Ночной режим">☾</button>
+<script>
+(function () {
+	var STORIES = [
+		{
+			t: "Утро",
+			e: "Morning",
+			s: [
+				["Меня зовут Аня.", "My name is Anya."],
+				["Я живу в Москве.", "I live in Moscow."],
+				["Утром я пью кофе и читаю новости.", "In the morning I drink coffee and read the news."],
+				["Потом я иду на работу.", "Then I go to work."],
+				["Я работаю в маленьком магазине.", "I work in a small shop."],
+				["Вечером я гуляю в парке.", "In the evening I walk in the park."],
+				["Я очень люблю мой город.", "I love my city very much."]
+			]
+		},
+		{
+			t: "Кот Барсик",
+			e: "Barsik the cat",
+			s: [
+				["У меня есть кот.", "I have a cat."],
+				["Его зовут Барсик.", "His name is Barsik."],
+				["Он большой и рыжий.", "He is big and ginger."],
+				["Барсик любит спать на диване.", "Barsik likes sleeping on the sofa."],
+				["Утром он хочет есть.", "In the morning he wants to eat."],
+				["Он смотрит на меня и говорит «мяу».", "He looks at me and says “meow”."],
+				["Я даю ему молоко.", "I give him milk."]
+			]
+		},
+		{
+			t: "Магазин",
+			e: "The shop",
+			s: [
+				["Сегодня суббота.", "Today is Saturday."],
+				["Я иду в магазин.", "I am going to the shop."],
+				["Я покупаю хлеб, молоко и яблоки.", "I buy bread, milk and apples."],
+				["В магазине работает Ольга.", "Olga works at the shop."],
+				["Она говорит: «Здравствуйте!»", "She says: “Hello!”"],
+				["Я тоже говорю: «Здравствуйте!»", "I say “Hello!” too."],
+				["Потом я иду домой.", "Then I go home."]
+			]
+		},
+		{
+			t: "Моя семья",
+			e: "My family",
+			s: [
+				["Это моя семья.", "This is my family."],
+				["Мой папа — врач.", "My dad is a doctor."],
+				["Моя мама — учительница.", "My mum is a teacher."],
+				["У меня есть брат.", "I have a brother."],
+				["Его зовут Иван, ему десять лет.", "His name is Ivan, he is ten years old."],
+				["У нас есть собака.", "We have a dog."],
+				["Мы часто гуляем вместе.", "We often go for walks together."]
+			]
+		},
+		{
+			t: "Зима",
+			e: "Winter",
+			s: [
+				["Сейчас зима.", "It is winter now."],
+				["На улице холодно.", "It is cold outside."],
+				["Идёт снег.", "It is snowing."],
+				["Дети играют во дворе.", "The children are playing in the yard."],
+				["Они делают снеговика.", "They are making a snowman."],
+				["Я пью чай дома и смотрю в окно.", "I drink tea at home and look out of the window."],
+				["Я очень люблю зиму.", "I love winter very much."]
+			]
+		},
+		{
+			t: "Дача",
+			e: "The dacha",
+			s: [
+				["Летом мы едем на дачу.", "In summer we go to the dacha."],
+				["Дача — это маленький дом за городом.", "A dacha is a small house outside the city."],
+				["Там есть большой сад.", "There is a big garden there."],
+				["Бабушка любит цветы.", "Grandma loves flowers."],
+				["Дедушка работает в огороде.", "Grandpa works in the vegetable garden."],
+				["Я читаю книгу под деревом.", "I read a book under a tree."],
+				["Вечером мы пьём чай на веранде.", "In the evening we drink tea on the veranda."]
+			]
+		},
+		{
+			t: "Метро",
+			e: "The metro",
+			s: [
+				["Я живу далеко от центра.", "I live far from the centre."],
+				["Каждый день я еду на работу на метро.", "Every day I go to work by metro."],
+				["Утром в метро много людей.", "In the morning there are a lot of people in the metro."],
+				["Я стою и слушаю музыку.", "I stand and listen to music."],
+				["Моя станция — «Парк культуры».", "My station is “Park Kultury”."],
+				["Потом я иду пешком пять минут.", "Then I walk for five minutes."],
+				["И вот я на работе.", "And here I am at work."]
+			]
+		},
+		{
+			t: "Ужин",
+			e: "Dinner",
+			s: [
+				["Вечером я готовлю ужин.", "In the evening I cook dinner."],
+				["Сегодня я делаю суп.", "Today I am making soup."],
+				["Мне нужны картошка, морковь и лук.", "I need potatoes, carrots and onions."],
+				["Ещё я делаю салат.", "I am also making a salad."],
+				["Мой муж приходит домой в семь часов.", "My husband comes home at seven o’clock."],
+				["Мы едим вместе и говорим о работе.", "We eat together and talk about work."],
+				["Потом мы смотрим фильм.", "Then we watch a film."]
+			]
+		},
+		{
+			t: "Воскресенье",
+			e: "Sunday",
+			s: [
+				["В воскресенье я не работаю.", "On Sunday I don’t work."],
+				["Утром я долго сплю.", "In the morning I sleep for a long time."],
+				["Потом я иду в парк с собакой.", "Then I go to the park with my dog."],
+				["Моя собака любит бегать.", "My dog loves running."],
+				["В парке тепло и тихо.", "In the park it is warm and quiet."],
+				["Я сижу на скамейке и читаю.", "I sit on a bench and read."],
+				["Домой мы идём в два часа.", "We go home at two o’clock."]
+			]
+		},
+		{
+			t: "Кафе",
+			e: "The café",
+			s: [
+				["На моей улице есть маленькое кафе.", "There is a small café on my street."],
+				["Там работает Наташа.", "Natasha works there."],
+				["Она делает очень вкусный кофе.", "She makes very good coffee."],
+				["Я всегда заказываю кофе и пирог.", "I always order coffee and a piece of pie."],
+				["Я сижу у окна и смотрю на улицу.", "I sit by the window and look at the street."],
+				["Люди идут на работу.", "People are going to work."],
+				["Я отдыхаю десять минут.", "I rest for ten minutes."]
+			]
+		},
+		{
+			t: "Осень",
+			e: "Autumn",
+			s: [
+				["Сейчас осень.", "It is autumn now."],
+				["На улице часто идёт дождь.", "It often rains outside."],
+				["Я беру зонт и иду гулять.", "I take an umbrella and go for a walk."],
+				["В парке жёлтые и красные листья.", "In the park there are yellow and red leaves."],
+				["Люди пьют горячий чай в кафе.", "People drink hot tea in cafés."],
+				["Вечером рано темно.", "In the evening it gets dark early."],
+				["Я люблю осень, она красивая.", "I love autumn, it is beautiful."]
+			]
+		},
+		{
+			t: "Мой день рождения",
+			e: "My birthday",
+			s: [
+				["Сегодня мой день рождения.", "Today is my birthday."],
+				["Мне двадцать пять лет.", "I am twenty-five years old."],
+				["Утром мама звонит мне.", "In the morning my mum calls me."],
+				["Друзья приходят вечером.", "My friends come in the evening."],
+				["Мы едим торт и пьём чай.", "We eat cake and drink tea."],
+				["Они дарят мне книгу и цветы.", "They give me a book and flowers."],
+				["Это очень хороший день.", "It is a very good day."]
+			]
+		},
+		{
+			t: "Урок русского языка",
+			e: "The Russian lesson",
+			s: [
+				["Я изучаю русский язык.", "I study Russian."],
+				["Мой урок во вторник и в четверг.", "My lesson is on Tuesday and Thursday."],
+				["Мою учительницу зовут Елена.", "My teacher’s name is Elena."],
+				["Мы читаем тексты и говорим.", "We read texts and talk."],
+				["Дома я делаю упражнения.", "At home I do exercises."],
+				["Иногда это трудно.", "Sometimes it is difficult."],
+				["Но я хочу говорить хорошо.", "But I want to speak well."]
+			]
+		},
+		{
+			t: "Соседи",
+			e: "The neighbours",
+			s: [
+				["В нашем доме живут хорошие соседи.", "Good neighbours live in our building."],
+				["Внизу живёт Виктор Петрович.", "Viktor Petrovich lives downstairs."],
+				["Он старый и очень добрый.", "He is old and very kind."],
+				["Наверху живёт молодая семья.", "A young family lives upstairs."],
+				["У них маленький сын.", "They have a little son."],
+				["Мы часто говорим во дворе.", "We often talk in the yard."],
+				["Летом мы вместе пьём чай.", "In summer we drink tea together."]
+			]
+		},
+		{
+			t: "Библиотека",
+			e: "The library",
+			s: [
+				["Рядом с домом есть библиотека.", "There is a library near my house."],
+				["Я хожу туда каждую неделю.", "I go there every week."],
+				["Там тихо и светло.", "It is quiet and bright there."],
+				["Я беру книги на русском языке.", "I take books in Russian."],
+				["Сейчас я читаю детскую книгу.", "Right now I am reading a children’s book."],
+				["Я знаю ещё не все слова.", "I don’t know all the words yet."],
+				["Но я понимаю историю.", "But I understand the story."]
+			]
+		},
+		{
+			t: "Поезд",
+			e: "The train",
+			s: [
+				["Завтра я еду в Санкт-Петербург.", "Tomorrow I am going to St Petersburg."],
+				["Мой поезд утром в восемь часов.", "My train is at eight in the morning."],
+				["Я беру маленький чемодан.", "I take a small suitcase."],
+				["В поезде я сижу у окна.", "On the train I sit by the window."],
+				["Я смотрю на поля и леса.", "I look at the fields and the forests."],
+				["Потом я пью чай и читаю.", "Then I drink tea and read."],
+				["Дорога долгая, но интересная.", "The journey is long but interesting."]
+			]
+		},
+		{
+			t: "Спорт",
+			e: "Sport",
+			s: [
+				["Я очень люблю спорт.", "I love sport very much."],
+				["Утром я бегаю в парке.", "In the morning I run in the park."],
+				["Я бегаю тридцать минут.", "I run for thirty minutes."],
+				["Потом я иду домой и пью воду.", "Then I go home and drink water."],
+				["В среду я играю в футбол.", "On Wednesday I play football."],
+				["Мой брат тоже играет.", "My brother plays too."],
+				["Это хорошо и весело.", "It is good and fun."]
+			]
+		},
+		{
+			t: "Наша кухня",
+			e: "Our kitchen",
+			s: [
+				["Я живу в маленькой квартире.", "I live in a small flat."],
+				["Моя кухня тоже маленькая.", "My kitchen is small too."],
+				["Там есть стол и два стула.", "There is a table and two chairs there."],
+				["На окне стоят цветы.", "There are flowers on the window sill."],
+				["Утром здесь очень светло.", "In the morning it is very bright here."],
+				["Я завтракаю и слушаю радио.", "I have breakfast and listen to the radio."],
+				["Я люблю мою кухню.", "I love my kitchen."]
+			]
+		},
+		{
+			t: "Письмо",
+			e: "The letter",
+			s: [
+				["Вчера я получила письмо.", "Yesterday I got a letter."],
+				["Это письмо от моей подруги.", "It is a letter from my friend."],
+				["Она живёт в Казани.", "She lives in Kazan."],
+				["Она пишет о новой работе.", "She writes about her new job."],
+				["Она говорит, что всё хорошо.", "She says that everything is fine."],
+				["Вечером я пишу ответ.", "In the evening I write a reply."],
+				["Я приглашаю её в гости.", "I invite her to visit."]
+			]
+		},
+		{
+			t: "Новый год",
+			e: "New Year",
+			s: [
+				["Мой любимый праздник — Новый год.", "My favourite holiday is New Year."],
+				["Мы ставим ёлку в декабре.", "We put up the tree in December."],
+				["Вся семья дома.", "The whole family is at home."],
+				["Мама готовит салат и мясо.", "Mum makes salad and meat."],
+				["В двенадцать часов мы говорим: «С Новым годом!»", "At twelve o’clock we say: “Happy New Year!”"],
+				["Потом мы смотрим в окно.", "Then we look out of the window."],
+				["На улице красивые огни.", "Outside there are beautiful lights."]
+			]
+		},
+		{
+			t: "Море",
+			e: "The sea",
+			s: [
+				["Летом мы едем на море.", "In summer we go to the sea."],
+				["Мы живём в маленькой гостинице.", "We stay in a small hotel."],
+				["Утром мы завтракаем на улице.", "In the morning we have breakfast outside."],
+				["Потом мы идём на пляж.", "Then we go to the beach."],
+				["Вода тёплая и чистая.", "The water is warm and clean."],
+				["Дети играют в песке.", "The children play in the sand."],
+				["Вечером мы едим рыбу.", "In the evening we eat fish."]
+			]
+		},
+		{
+			t: "Рынок",
+			e: "The market",
+			s: [
+				["В субботу я иду на рынок.", "On Saturday I go to the market."],
+				["Там всегда много людей.", "There are always a lot of people there."],
+				["Я покупаю овощи и фрукты.", "I buy vegetables and fruit."],
+				["Помидоры здесь очень вкусные.", "The tomatoes here are very tasty."],
+				["Я знаю продавца, его зовут Олег.", "I know the seller, his name is Oleg."],
+				["Он всегда даёт хорошую цену.", "He always gives a good price."],
+				["Домой я иду с большой сумкой.", "I go home with a big bag."]
+			]
+		},
+		{
+			t: "Мой телефон",
+			e: "My phone",
+			s: [
+				["Мой телефон старый, но хороший.", "My phone is old but good."],
+				["Утром он говорит мне: «Вставай!»", "In the morning it says to me: “Get up!”"],
+				["Я читаю новости в телефоне.", "I read the news on my phone."],
+				["Там у меня есть словарь.", "I have a dictionary on it."],
+				["Я учу русские слова в автобусе.", "I learn Russian words on the bus."],
+				["Вечером я звоню маме.", "In the evening I call my mum."],
+				["Мы говорим двадцать минут.", "We talk for twenty minutes."]
+			]
+		},
+		{
+			t: "Кино",
+			e: "The cinema",
+			s: [
+				["В пятницу мы идём в кино.", "On Friday we go to the cinema."],
+				["Билет стоит четыреста рублей.", "A ticket costs four hundred roubles."],
+				["Мы покупаем попкорн и воду.", "We buy popcorn and water."],
+				["Сегодня новый русский фильм.", "Today there is a new Russian film."],
+				["Я понимаю не все слова.", "I don’t understand all the words."],
+				["Но фильм очень интересный.", "But the film is very interesting."],
+				["Потом мы говорим о нём в кафе.", "Afterwards we talk about it in a café."]
+			]
+		},
+		{
+			t: "Работа дома",
+			e: "Working from home",
+			s: [
+				["Я работаю дома.", "I work at home."],
+				["Мой стол стоит у окна.", "My desk is by the window."],
+				["Утром я пью кофе и читаю почту.", "In the morning I drink coffee and read my mail."],
+				["В час я обедаю на кухне.", "At one o’clock I have lunch in the kitchen."],
+				["Днём я много пишу.", "In the afternoon I write a lot."],
+				["В шесть часов я закрываю компьютер.", "At six o’clock I close my computer."],
+				["Потом я отдыхаю.", "Then I rest."]
+			]
+		},
+		{
+			t: "Бабушка",
+			e: "Grandmother",
+			s: [
+				["Моя бабушка живёт в деревне.", "My grandmother lives in a village."],
+				["Ей семьдесят восемь лет.", "She is seventy-eight years old."],
+				["У неё маленький дом и сад.", "She has a small house and a garden."],
+				["Она очень хорошо готовит.", "She cooks very well."],
+				["Её пироги самые вкусные.", "Her pies are the tastiest."],
+				["Мы приезжаем к ней каждое лето.", "We come to see her every summer."],
+				["Она всегда очень рада.", "She is always very glad."]
+			]
+		},
+		{
+			t: "Музыка",
+			e: "Music",
+			s: [
+				["Я очень люблю музыку.", "I love music very much."],
+				["Дома я слушаю радио.", "At home I listen to the radio."],
+				["В машине я слушаю старые песни.", "In the car I listen to old songs."],
+				["Моя сестра играет на гитаре.", "My sister plays the guitar."],
+				["Иногда мы поём вместе.", "Sometimes we sing together."],
+				["Это плохо, но весело.", "It is bad, but it is fun."],
+				["Соседи ничего не говорят.", "The neighbours don’t say anything."]
+			]
+		},
+		{
+			t: "Наш город",
+			e: "Our town",
+			s: [
+				["Я живу в небольшом городе.", "I live in a small town."],
+				["Здесь есть река и старый мост.", "There is a river and an old bridge here."],
+				["В центре большая площадь.", "In the centre there is a big square."],
+				["Там стоит красивая церковь.", "A beautiful church stands there."],
+				["Летом на площади играет музыка.", "In summer music plays on the square."],
+				["Мы гуляем и едим мороженое.", "We walk around and eat ice cream."],
+				["Я не хочу жить в другом месте.", "I don’t want to live anywhere else."]
+			]
+		},
+		{
+			t: "Завтрак",
+			e: "Breakfast",
+			s: [
+				["Я всегда завтракаю дома.", "I always have breakfast at home."],
+				["Обычно я ем кашу.", "Usually I eat porridge."],
+				["Иногда я делаю яичницу.", "Sometimes I make fried eggs."],
+				["Мой сын пьёт только сок.", "My son drinks only juice."],
+				["Он не любит молоко.", "He doesn’t like milk."],
+				["Мы едим быстро.", "We eat quickly."],
+				["В восемь часов мы уже на улице.", "At eight o’clock we are already outside."]
+			]
+		},
+		{
+			t: "Гости",
+			e: "Guests",
+			s: [
+				["Сегодня к нам приходят гости.", "Today guests are coming to our place."],
+				["Утром я убираю квартиру.", "In the morning I clean the flat."],
+				["Муж покупает хлеб и торт.", "My husband buys bread and cake."],
+				["В семь часов звонок.", "At seven o’clock the doorbell rings."],
+				["Это Анна и Сергей.", "It is Anna and Sergei."],
+				["Мы сидим на кухне и говорим.", "We sit in the kitchen and talk."],
+				["Они уходят очень поздно.", "They leave very late."]
+			]
+		}
+	];
+	var FACES = [
+		{ n: "Pacifico", s: 1.5 },
+		{ n: "Bad Script", s: 1.8 },
+		{ n: "Caveat", s: 2.15 },
+		{ n: "Marck Script", s: 1.75 }
+	];
+	var LABELS = ["Показать текст", "Показать перевод", "Скрыть всё"];
+	var face = FACES[0];
+	var current = 0;
+	var gstage = 0;
+
+	var list = document.getElementById("list");
+	var title = document.getElementById("title");
+	var sub = document.getElementById("sub");
+	var lines = document.getElementById("lines");
+	var all = document.getElementById("all");
+	var sel = document.getElementById("face");
+	var moon = document.getElementById("night");
+
+	function save(k, v) {
+		try {
+			localStorage.setItem(k, v);
+		} catch (e) {}
+	}
+
+	function load(k) {
+		try {
+			return localStorage.getItem(k);
+		} catch (e) {
+			return null;
+		}
+	}
+
+	function applyFace() {
+		var stack = '"' + face.n + '", cursive';
+		title.style.fontFamily = stack;
+		title.style.fontSize = (face.s * 1.5).toFixed(2) + "rem";
+		Array.prototype.forEach.call(document.querySelectorAll(".cur"), function (c) {
+			c.style.fontFamily = stack;
+			c.style.fontSize = face.s + "rem";
+		});
+	}
+
+	function buildToc() {
+		STORIES.forEach(function (story, i) {
+			var li = document.createElement("li");
+			var b = document.createElement("button");
+			b.type = "button";
+			b.appendChild(document.createTextNode(story.t));
+			var sm = document.createElement("small");
+			sm.textContent = story.e;
+			b.appendChild(sm);
+			b.addEventListener("click", function () {
+				show(i);
+			});
+			li.appendChild(b);
+			list.appendChild(li);
+		});
+	}
+
+	function markToc() {
+		Array.prototype.forEach.call(list.querySelectorAll("button"), function (b, i) {
+			b.setAttribute("aria-current", i === current ? "true" : "false");
+		});
+	}
+
+	function show(i) {
+		current = i;
+		gstage = 0;
+		var story = STORIES[i];
+		document.title = story.t + " — Рассказы";
+		title.textContent = story.t;
+		sub.textContent = story.e;
+		lines.textContent = "";
+		all.textContent = LABELS[0];
+
+		story.s.forEach(function (pair) {
+			var li = document.createElement("li");
+			li.setAttribute("data-stage", "0");
+			var b = document.createElement("button");
+			b.className = "ru";
+			b.type = "button";
+			var cur = document.createElement("span");
+			cur.className = "cur";
+			cur.textContent = pair[0];
+			var prn = document.createElement("span");
+			prn.className = "prn";
+			prn.textContent = pair[0];
+			b.appendChild(cur);
+			b.appendChild(prn);
+			var en = document.createElement("p");
+			en.className = "en";
+			en.textContent = pair[1];
+			b.addEventListener("click", function () {
+				var n = (parseInt(li.getAttribute("data-stage"), 10) + 1) % 3;
+				li.setAttribute("data-stage", String(n));
+			});
+			li.appendChild(b);
+			li.appendChild(en);
+			lines.appendChild(li);
+		});
+
+		markToc();
+		applyFace();
+		save("story", String(i));
+		window.scrollTo(0, 0);
+	}
+
+	all.addEventListener("click", function () {
+		gstage = (gstage + 1) % 3;
+		Array.prototype.forEach.call(lines.querySelectorAll("li"), function (li) {
+			li.setAttribute("data-stage", String(gstage));
+		});
+		all.textContent = LABELS[gstage];
+	});
+
+	document.getElementById("random").addEventListener("click", function () {
+		var i = Math.floor(Math.random() * STORIES.length);
+		while (STORIES.length > 1 && i === current) {
+			i = Math.floor(Math.random() * STORIES.length);
+		}
+		show(i);
+	});
+
+	FACES.forEach(function (f) {
+		var o = document.createElement("option");
+		o.value = f.n;
+		o.textContent = f.n;
+		sel.appendChild(o);
+	});
+	sel.addEventListener("change", function () {
+		FACES.forEach(function (f) {
+			if (f.n === sel.value) {
+				face = f;
+			}
+		});
+		save("face", face.n);
+		applyFace();
+	});
+
+	moon.addEventListener("click", function () {
+		var on = !document.body.classList.contains("night");
+		document.body.classList.toggle("night", on);
+		moon.textContent = on ? "☀" : "☾";
+		save("night", on ? "1" : "0");
+	});
+
+	var savedFace = load("face");
+	FACES.forEach(function (f) {
+		if (f.n === savedFace) {
+			face = f;
+		}
+	});
+	sel.value = face.n;
+	if (load("night") === "1") {
+		document.body.classList.add("night");
+		moon.textContent = "☀";
+	}
+
+	buildToc();
+	var savedStory = parseInt(load("story"), 10);
+	show(isNaN(savedStory) || savedStory >= STORIES.length ? 0 : savedStory);
+})();
+</script>
+</body>
+</html>
