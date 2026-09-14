@@ -39,14 +39,63 @@ body {
 }
 #toc {
 	position: sticky;
+	inset: auto;
 	top: 0;
 	align-self: start;
+	display: block;
+	width: auto;
+	max-width: none;
+	height: auto;
 	max-height: 100vh;
-	overflow-y: auto;
+	margin: 0;
 	padding: 2rem 1.2rem 3rem;
+	border: 0;
 	border-right: 1px solid var(--rule);
+	overflow-y: auto;
 	background: var(--panel);
+	color: inherit;
 }
+#tochead {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	align-items: center;
+	gap: 0.6rem 0.8rem;
+	margin-bottom: 1rem;
+}
+#tochead h2 { margin: 0; }
+#filter {
+	grid-column: 1 / -1;
+	width: 100%;
+	padding: 0.35rem 0.5rem;
+	border: 1px solid var(--rule);
+	border-radius: 3px;
+	background: var(--paper);
+	font: inherit;
+	font-size: 0.92rem;
+	color: var(--ink);
+}
+#toc #close {
+	display: none;
+	align-items: center;
+	justify-content: center;
+	width: 2.2rem;
+	height: 2.2rem;
+	padding: 0;
+	border: 1px solid var(--rule);
+	border-radius: 50%;
+	background: var(--paper);
+	font-size: 1rem;
+	line-height: 1;
+	color: var(--ink);
+	cursor: pointer;
+}
+#empty {
+	margin: 0 0 1.6rem;
+	font-size: 0.92rem;
+	font-style: italic;
+	color: var(--muted);
+}
+#bar { display: none; }
 #toc h2 {
 	margin: 0 0 1.2rem;
 	font-size: 0.8rem;
@@ -222,27 +271,119 @@ select {
 	outline-offset: 3px;
 }
 @media (max-width: 44rem) {
-	body { grid-template-columns: 1fr; }
-	#toc {
-		position: static;
-		max-height: none;
-		border-right: 0;
+	body {
+		grid-template-columns: 1fr;
+		grid-template-rows: auto 1fr;
+	}
+	#bar {
+		position: sticky;
+		top: 0;
+		z-index: 5;
+		display: flex;
+		align-items: center;
+		gap: 0.8rem;
+		min-height: 3.4rem;
+		padding: 0.5rem 3.6rem 0.5rem 0.9rem;
+		border-bottom: 1px solid var(--rule);
+		background: var(--panel);
+	}
+	#menu {
+		flex: none;
+		display: flex;
+		align-items: center;
+		gap: 0.45rem;
+		min-height: 2.4rem;
+		margin: 0;
+		padding: 0.4rem 0.7rem;
+		border: 1px solid var(--rule);
+		border-radius: 3px;
+		background: var(--paper);
+		font: inherit;
+		font-size: 0.95rem;
+		color: var(--ink);
+		cursor: pointer;
+	}
+	#barTitle {
+		overflow: hidden;
+		font-size: 0.95rem;
+		font-style: italic;
+		color: var(--muted);
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	#toc { display: none; }
+	#toc[open] {
+		position: fixed;
+		inset: 0 auto 0 0;
+		display: flex;
+		flex-direction: column;
+		width: min(20rem, 85vw);
+		height: 100dvh;
+		max-height: 100dvh;
+		padding: 0;
+		border-right: 1px solid var(--rule);
+		overflow: hidden;
+		transform: translateX(-100%);
+		transition: transform 0.22s ease;
+	}
+	#toc[open].in { transform: none; }
+	#toc::backdrop { background: rgba(0, 0, 0, 0.45); }
+	#tochead {
+		flex: none;
+		margin: 0;
+		padding: 1rem 1.1rem 0.9rem;
 		border-bottom: 1px solid var(--rule);
 	}
+	#toc #close { display: flex; }
+	#list {
+		flex: 1 1 auto;
+		margin: 0;
+		padding: 1rem 1.1rem;
+		overflow-y: auto;
+		overscroll-behavior: contain;
+	}
+	#empty { margin: 0; padding: 0 1.1rem 1rem; }
+	#tools {
+		flex: none;
+		margin: 0;
+		padding: 1.1rem 1.1rem calc(1.1rem + env(safe-area-inset-bottom));
+		border-top: 1px solid var(--rule);
+	}
+	#night {
+		top: 0.6rem;
+		right: 1.1rem;
+		z-index: 6;
+	}
+	body.locked { overflow: hidden; }
 	main { padding: 4vh 6vw 12vh; }
+}
+@media (prefers-reduced-motion: reduce) {
+	#toc[open] {
+		transform: none;
+		transition: none;
+	}
 }
 </style>
 </head>
 <body>
-<aside id="toc">
-	<h2>Рассказы</h2>
+<header id="bar">
+	<button id="menu" type="button" aria-expanded="false" aria-controls="toc"><span aria-hidden="true">☰</span> Рассказы</button>
+	<span id="barTitle"></span>
+</header>
+<dialog id="toc" aria-label="Список рассказов">
+	<div id="tochead">
+		<h2>Рассказы</h2>
+		<button id="close" type="button" aria-label="Закрыть меню"><span aria-hidden="true">✕</span></button>
+		<input id="filter" type="search" autocomplete="off" placeholder="Поиск…" aria-label="Поиск рассказа">
+	</div>
 	<ol id="list"></ol>
+	<p id="empty" hidden>Ничего не найдено</p>
 	<div id="tools">
 		<select id="face"></select>
 		<button class="act" type="button" id="random">Случайный рассказ</button>
 		<button class="act" type="button" id="free">Свободная практика</button>
 	</div>
-</aside>
+</dialog>
 <main>
 	<h1 id="title"></h1>
 	<p class="sub" id="sub"></p>
@@ -689,6 +830,14 @@ select {
 	var controls = document.getElementById("controls");
 	var editBtn = document.getElementById("edit");
 	var freeBtn = document.getElementById("free");
+	var toc = document.getElementById("toc");
+	var menu = document.getElementById("menu");
+	var barTitle = document.getElementById("barTitle");
+	var filter = document.getElementById("filter");
+	var empty = document.getElementById("empty");
+	var closeBtn = document.getElementById("close");
+	var tocItems = [];
+	var mq = window.matchMedia("(max-width: 44rem)");
 
 	function save(k, v) {
 		try {
@@ -725,10 +874,75 @@ select {
 			b.appendChild(sm);
 			b.addEventListener("click", function () {
 				show(i);
+				drawerClose(false);
 			});
 			li.appendChild(b);
 			list.appendChild(li);
+			tocItems.push(li);
 		});
+	}
+
+	function norm(s) {
+		return s.toLowerCase().replace(/ё/g, "е");
+	}
+
+	function applyFilter() {
+		var q = norm(filter.value.trim());
+		var hits = 0;
+		tocItems.forEach(function (li, i) {
+			var s = STORIES[i];
+			var hit = !q || norm(s.t).indexOf(q) > -1 || norm(s.e).indexOf(q) > -1;
+			li.hidden = !hit;
+			if (hit) {
+				hits++;
+			}
+		});
+		empty.hidden = hits > 0;
+	}
+
+	function syncRole() {
+		if (mq.matches) {
+			toc.removeAttribute("role");
+		} else {
+			toc.setAttribute("role", "navigation");
+		}
+	}
+
+	function drawerOpen() {
+		if (!mq.matches || toc.open) {
+			return;
+		}
+		filter.value = "";
+		applyFilter();
+		toc.showModal();
+		document.body.classList.add("locked");
+		menu.setAttribute("aria-expanded", "true");
+		window.requestAnimationFrame(function () {
+			toc.classList.add("in");
+		});
+	}
+
+	function drawerClose(returnFocus, after) {
+		if (!toc.open) {
+			if (after) {
+				after();
+			}
+			return;
+		}
+		toc.classList.remove("in");
+		menu.setAttribute("aria-expanded", "false");
+		document.body.classList.remove("locked");
+		window.setTimeout(function () {
+			if (toc.open) {
+				toc.close();
+			}
+			if (returnFocus) {
+				menu.focus();
+			}
+			if (after) {
+				after();
+			}
+		}, 220);
 	}
 
 	function markToc() {
@@ -749,6 +963,7 @@ select {
 		var story = STORIES[i];
 		document.title = story.t + " — Рассказы";
 		title.textContent = story.t;
+		barTitle.textContent = story.t;
 		sub.textContent = story.e;
 		lines.textContent = "";
 		all.textContent = LABELS[0];
@@ -838,6 +1053,7 @@ select {
 		current = -1;
 		document.title = "Свободная практика — Рассказы";
 		title.textContent = "Свободная практика";
+		barTitle.textContent = "Свободная практика";
 		sub.textContent = "Free practice";
 		markToc();
 		save("story", "free");
@@ -867,7 +1083,9 @@ select {
 	});
 
 	freeBtn.addEventListener("click", function () {
-		showFree(true);
+		drawerClose(false, function () {
+			showFree(true);
+		});
 	});
 
 	editBtn.addEventListener("click", function () {
@@ -894,6 +1112,50 @@ select {
 			i = Math.floor(Math.random() * STORIES.length);
 		}
 		show(i);
+		drawerClose(false);
+	});
+
+	menu.addEventListener("click", drawerOpen);
+
+	closeBtn.addEventListener("click", function () {
+		drawerClose(true);
+	});
+
+	toc.addEventListener("cancel", function (e) {
+		e.preventDefault();
+		drawerClose(true);
+	});
+
+	toc.addEventListener("click", function (e) {
+		if (e.target === toc) {
+			drawerClose(true);
+		}
+	});
+
+	filter.addEventListener("input", applyFilter);
+
+	var tx = 0;
+	var ty = 0;
+	toc.addEventListener("touchstart", function (e) {
+		tx = e.changedTouches[0].clientX;
+		ty = e.changedTouches[0].clientY;
+	}, { passive: true });
+	toc.addEventListener("touchend", function (e) {
+		var dx = e.changedTouches[0].clientX - tx;
+		var dy = e.changedTouches[0].clientY - ty;
+		if (dx < -50 && Math.abs(dx) > Math.abs(dy)) {
+			drawerClose(true);
+		}
+	}, { passive: true });
+
+	mq.addEventListener("change", function () {
+		syncRole();
+		if (!mq.matches && toc.open) {
+			toc.classList.remove("in");
+			document.body.classList.remove("locked");
+			menu.setAttribute("aria-expanded", "false");
+			toc.close();
+		}
 	});
 
 	FACES.forEach(function (f) {
@@ -931,6 +1193,7 @@ select {
 		moon.textContent = "☀";
 	}
 
+	syncRole();
 	buildToc();
 	var savedStory = load("story");
 	if (savedStory === "free") {
